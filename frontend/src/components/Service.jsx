@@ -21,7 +21,7 @@ function Service() {
   ];
 
   return (
-    <section className="container py-5">
+    <section className="site-container py-5">
       <h2 className="text-center fw-bold mb-5">DỊCH VỤ CỦA CHÚNG TÔI</h2>
 
       <div className="row">

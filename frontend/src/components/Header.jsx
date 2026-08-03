@@ -1,34 +1,43 @@
+import { NavLink } from "react-router-dom";
+
+import logoHaHong from "../assets/images/logo-ha-hong.jpg";
+import { emailCongTy, soDienThoaiCongTy, soDienThoaiLienKet } from "../data/contactInfo";
+
+const menuItems = [
+  { label: "Trang chủ", to: "/", end: true },
+  { label: "Giới thiệu", to: "/gioi-thieu" },
+  { label: "Dịch vụ", to: "/dich-vu" },
+  { label: "Dự án", to: "/du-an" },
+  { label: "Liên hệ", to: "/lien-he" },
+];
+
 function Header() {
   return (
-    <header>
-      {/* Top bar */}
+    <header className="site-header">
       <div className="top-bar">
-        <div className="container top-bar-content">
-          <a href="tel:0909123456">
+        <div className="site-container top-bar-content">
+          <a href={`tel:${soDienThoaiLienKet}`}>
             <i className="bi bi-telephone-fill"></i>
-            0909 123 456
+            {soDienThoaiCongTy}
           </a>
-
-          <a href="mailto:contact@hahongelevator.com">
+          <a href={`mailto:${emailCongTy}`}>
             <i className="bi bi-envelope-fill"></i>
-            contact@hahongelevator.com
+            {emailCongTy}
           </a>
         </div>
       </div>
 
-      {/* Navbar */}
-      <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm main-navbar">
-        <div className="container">
-          <a className="navbar-brand" href="#trang-chu">
-            <span className="brand-symbol">
-              <i className="bi bi-building"></i>
+      <nav className="navbar navbar-expand-lg navbar-light bg-white main-navbar">
+        <div className="site-container">
+          <NavLink className="navbar-brand" to="/">
+            <span className="brand-logo-wrap">
+              <img src={logoHaHong} alt="Logo Thang Máy Hà Hồng" />
             </span>
-
             <span className="brand-text">
               <strong>HÀ HỒNG</strong>
               <small>ELEVATOR</small>
             </span>
-          </a>
+          </NavLink>
 
           <button
             className="navbar-toggler"
@@ -42,48 +51,21 @@ function Header() {
             <span className="navbar-toggler-icon"></span>
           </button>
 
-          <div
-            className="collapse navbar-collapse justify-content-end"
-            id="mainMenu"
-          >
-            <ul className="navbar-nav align-items-lg-center">
-              <li className="nav-item">
-                <a className="nav-link active" href="#trang-chu">
-                  Trang chủ
-                </a>
-              </li>
-
-              <li className="nav-item">
-                <a className="nav-link" href="#gioi-thieu">
-                  Giới thiệu
-                </a>
-              </li>
-
-              <li className="nav-item">
-                <a className="nav-link" href="#dich-vu">
-                  Dịch vụ
-                </a>
-              </li>
-
-              <li className="nav-item">
-                <a className="nav-link" href="#du-an">
-                  Dự án
-                </a>
-              </li>
-
-              <li className="nav-item">
-                <a className="nav-link" href="#lien-he">
-                  Liên hệ
-                </a>
-              </li>
-
-              <li className="nav-item ms-lg-3">
-                <a className="btn navbar-quote-button" href="#lien-he">
-                  Yêu cầu báo giá
-                  <i className="bi bi-arrow-up-right ms-2"></i>
-                </a>
-              </li>
+          <div className="collapse navbar-collapse justify-content-lg-center" id="mainMenu">
+            <ul className="navbar-nav align-items-lg-center mx-lg-auto">
+              {menuItems.map((item) => (
+                <li className="nav-item" key={item.label}>
+                  <NavLink className={({ isActive }) => `nav-link${isActive ? " active" : ""}`} end={item.end} to={item.to}>
+                    {item.label}
+                  </NavLink>
+                </li>
+              ))}
             </ul>
+
+            <NavLink className="btn navbar-quote-button ms-lg-3" to="/lien-he">
+              Yêu cầu báo giá
+              <i className="bi bi-arrow-up-right ms-2"></i>
+            </NavLink>
           </div>
         </div>
       </nav>
