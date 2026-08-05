@@ -2,19 +2,17 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { apiClient } from "../api/client";
-import anhVanPhong02 from "../assets/images/du-an/thang-may-van-phong-02.webp";
+import heroImage from "../assets/images/hero-elevator.jpg";
 import { soDienThoaiCongTy, soDienThoaiLienKet } from "../data/contactInfo";
+import { boLocDuAn, chuanHoaPhanLoaiDuAn, layNhanPhanLoaiDuAn } from "../data/projectCategories";
 import { chuanHoaDuAn, duAnMau } from "../data/projectData";
 
-const boLocDuAn = [
-  { label: "Tất cả", value: "tat-ca" },
-  { label: "Thang máy gia đình", value: "gia-dinh" },
-  { label: "Thang máy văn phòng", value: "van-phong" },
-  { label: "Thang máy doanh nghiệp", value: "doanh-nghiep" },
-  { label: "Thang máy khách sạn", value: "khach-san" },
-  { label: "Cửa sập", value: "cua-sap" },
-  { label: "Thang cuốn", value: "thang-cuon" },
-];
+const SO_DU_AN_MOI_TRANG = 8;
+
+const duAnMauDaChuanHoa = duAnMau.map((duAn) => ({
+  ...chuanHoaDuAn(duAn),
+  category: chuanHoaPhanLoaiDuAn(duAn.category),
+}));
 
 function SectionTitle({ eyebrow, title, description, center = false }) {
   return (
@@ -28,7 +26,7 @@ function SectionTitle({ eyebrow, title, description, center = false }) {
 
 function BannerDuAn() {
   return (
-    <section className="about-banner project-banner" style={{ backgroundImage: `linear-gradient(90deg, rgba(5, 14, 28, 0.95), rgba(5, 14, 28, 0.68)), url(${anhVanPhong02})` }}>
+    <section className="about-banner project-banner" style={{ backgroundImage: `linear-gradient(90deg, rgba(5, 14, 28, 0.95), rgba(5, 14, 28, 0.68)), url(${heroImage})` }}>
       <div className="site-container">
         <nav className="about-breadcrumb" aria-label="breadcrumb">
           <a href="/">Trang chủ</a>
@@ -54,7 +52,7 @@ function TheDuAn({ duAn }) {
         <span className="project-reference-badge">{duAn.isSample ? "Dữ liệu tham khảo" : "Dự án Hà Hồng"}</span>
       </Link>
       <div className="project-gallery-content">
-        <span>{duAn.category}</span>
+        <span>{layNhanPhanLoaiDuAn(duAn.category)}</span>
         <h3>{duAn.name}</h3>
         <p>{duAn.description}</p>
         <strong className="project-card-price">{duAn.priceRange}</strong>
@@ -69,7 +67,8 @@ function TheDuAn({ duAn }) {
 
 function DuAn() {
   const [danhMucDangChon, setDanhMucDangChon] = useState("tat-ca");
-  const [duAnHienThi, setDuAnHienThi] = useState(duAnMau.map(chuanHoaDuAn));
+  const [duAnHienThi, setDuAnHienThi] = useState(duAnMauDaChuanHoa);
+  const [trangHienTai, setTrangHienTai] = useState(1);
 
   useEffect(() => {
     let dangHoatDong = true;
@@ -78,7 +77,12 @@ function DuAn() {
       try {
         const { data } = await apiClient.get("/projects");
         if (dangHoatDong && data.length) {
-          setDuAnHienThi(data.map(chuanHoaDuAn));
+          const duAnTuApi = data.map((duAn, index) => ({
+            ...chuanHoaDuAn(duAn),
+            category: chuanHoaPhanLoaiDuAn(duAn.category),
+            id: duAn.id || `api-${index}`,
+          }));
+          setDuAnHienThi(duAnTuApi);
         }
       } catch {
         // Giữ dữ liệu mẫu nếu API chưa sẵn sàng.
@@ -94,7 +98,11 @@ function DuAn() {
 
   const danhSachDaLoc = danhMucDangChon === "tat-ca"
     ? duAnHienThi
-    : duAnHienThi.filter((duAn) => duAn.category === danhMucDangChon);
+    : duAnHienThi.filter((duAn) => chuanHoaPhanLoaiDuAn(duAn.category) === danhMucDangChon);
+  const tongSoTrang = Math.max(1, Math.ceil(danhSachDaLoc.length / SO_DU_AN_MOI_TRANG));
+  const trangDangDung = Math.min(trangHienTai, tongSoTrang);
+  const viTriBatDau = (trangDangDung - 1) * SO_DU_AN_MOI_TRANG;
+  const duAnTrongTrang = danhSachDaLoc.slice(viTriBatDau, viTriBatDau + SO_DU_AN_MOI_TRANG);
 
   return (
     <main>
@@ -109,7 +117,15 @@ function DuAn() {
           />
           <div className="project-filter-bar" aria-label="Bộ lọc dự án">
             {boLocDuAn.map((item) => (
-              <button className={danhMucDangChon === item.value ? "active" : ""} key={item.value} type="button" onClick={() => setDanhMucDangChon(item.value)}>
+              <button
+                className={danhMucDangChon === item.value ? "active" : ""}
+                key={item.value}
+                type="button"
+                onClick={() => {
+                  setDanhMucDangChon(item.value);
+                  setTrangHienTai(1);
+                }}
+              >
                 {item.label}
               </button>
             ))}
@@ -119,12 +135,27 @@ function DuAn() {
       <section className="project-gallery-section">
         <div className="site-container">
           <div className="row g-4 project-gallery-grid">
-            {danhSachDaLoc.map((duAn) => (
+            {duAnTrongTrang.map((duAn) => (
               <div className="col-md-6 col-xl-4" key={duAn.id}>
                 <TheDuAn duAn={duAn} />
               </div>
             ))}
           </div>
+          {tongSoTrang > 1 && (
+            <div className="site-pagination" aria-label="Phân trang dự án">
+              <button type="button" disabled={trangDangDung === 1} onClick={() => setTrangHienTai((trang) => Math.max(1, trang - 1))}>
+                Trước
+              </button>
+              {Array.from({ length: tongSoTrang }, (_, index) => index + 1).map((trang) => (
+                <button className={trangDangDung === trang ? "active" : ""} type="button" key={trang} onClick={() => setTrangHienTai(trang)}>
+                  {trang}
+                </button>
+              ))}
+              <button type="button" disabled={trangDangDung === tongSoTrang} onClick={() => setTrangHienTai((trang) => Math.min(tongSoTrang, trang + 1))}>
+                Sau
+              </button>
+            </div>
+          )}
         </div>
       </section>
       <section className="about-cta-section">

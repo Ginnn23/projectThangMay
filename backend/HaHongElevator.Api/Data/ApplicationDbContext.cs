@@ -14,6 +14,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<ContactRequest> ContactRequests => Set<ContactRequest>();
     public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
+    public DbSet<MaintenanceCustomer> MaintenanceCustomers => Set<MaintenanceCustomer>();
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -85,6 +86,18 @@ public class ApplicationDbContext : DbContext
             entity.Property(x => x.Value).HasColumnType("text").IsRequired();
             entity.Property(x => x.UpdatedAt).HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
         });
+
+        modelBuilder.Entity<MaintenanceCustomer>(entity =>
+        {
+            entity.Property(x => x.CustomerName).HasMaxLength(150).IsRequired();
+            entity.Property(x => x.PhoneNumber).HasMaxLength(30).IsRequired();
+            entity.Property(x => x.Email).HasMaxLength(254);
+            entity.Property(x => x.ProjectName).HasMaxLength(220).IsRequired();
+            entity.Property(x => x.ProjectType).HasMaxLength(120).IsRequired();
+            entity.Property(x => x.Address).HasMaxLength(300).IsRequired();
+            entity.Property(x => x.Note).HasMaxLength(2000);
+            entity.Property(x => x.CreatedAt).HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
+        });
     }
 
     private void ApplyUtcDates()
@@ -107,6 +120,11 @@ public class ApplicationDbContext : DbContext
             if (entry.Entity is SiteSetting setting && entry.State == EntityState.Modified)
             {
                 setting.UpdatedAt = DateTime.UtcNow;
+            }
+
+            if (entry.Entity is MaintenanceCustomer maintenanceCustomer && entry.State == EntityState.Modified)
+            {
+                maintenanceCustomer.UpdatedAt = DateTime.UtcNow;
             }
 
             if (entry.State == EntityState.Added)

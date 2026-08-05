@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { apiClient } from "../api/client";
+import { chuanHoaPhanLoaiDuAn, layNhanPhanLoaiDuAn } from "../data/projectCategories";
 import { chuanHoaDuAn, duAnMau } from "../data/projectData";
 
 const noiDungChiTietTheoSlug = {
@@ -152,6 +153,7 @@ function DanhSachIcon({ items, icon = "bi-check-circle-fill" }) {
 function ChiTietDuAn() {
   const { slug } = useParams();
   const [duAn, setDuAn] = useState(() => chuanHoaDuAn(duAnMau.find((item) => item.slug === slug) || duAnMau[0]));
+  const [duAnLienQuan, setDuAnLienQuan] = useState([]);
   const [dangTai, setDangTai] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const noiDungChiTiet = useMemo(() => layNoiDungChiTiet(duAn), [duAn]);
@@ -188,6 +190,39 @@ function ChiTietDuAn() {
       dangHoatDong = false;
     };
   }, [slug]);
+
+  useEffect(() => {
+    let dangHoatDong = true;
+
+    const taiDuAnLienQuan = async () => {
+      const phanLoaiHienTai = chuanHoaPhanLoaiDuAn(duAn.category);
+
+      try {
+        const { data } = await apiClient.get("/projects");
+        if (!dangHoatDong) return;
+
+        const danhSach = data.map((item, index) => chuanHoaDuAn(item, index));
+        const lienQuan = danhSach
+          .filter((item) => item.slug !== duAn.slug && chuanHoaPhanLoaiDuAn(item.category) === phanLoaiHienTai)
+          .slice(0, 3);
+        setDuAnLienQuan(lienQuan);
+      } catch {
+        if (!dangHoatDong) return;
+
+        const lienQuanDuPhong = duAnMau
+          .map((item, index) => chuanHoaDuAn(item, index))
+          .filter((item) => item.slug !== duAn.slug && chuanHoaPhanLoaiDuAn(item.category) === phanLoaiHienTai)
+          .slice(0, 3);
+        setDuAnLienQuan(lienQuanDuPhong);
+      }
+    };
+
+    taiDuAnLienQuan();
+
+    return () => {
+      dangHoatDong = false;
+    };
+  }, [duAn.category, duAn.slug]);
 
   useEffect(() => {
     if (projectImages.length < 2) return undefined;
@@ -356,6 +391,34 @@ function ChiTietDuAn() {
           <p className="project-price-note">
             Giá hiển thị là mức tham khảo theo mặt bằng thị trường và cấu hình phổ biến. Chi phí thực tế cần khảo sát công trình, số điểm dừng, tải trọng, vật liệu cabin, điều kiện thi công, nguồn điện và các yêu cầu nội thất riêng.
           </p>
+
+          {duAnLienQuan.length > 0 && (
+            <section className="project-related-section" data-aos="fade-up">
+              <div className="project-related-heading">
+                <div>
+                  <span className="section-eyebrow">DỰ ÁN LIÊN QUAN</span>
+                  <h2>Cùng phân loại {layNhanPhanLoaiDuAn(duAn.category)}</h2>
+                </div>
+                <Link className="btn hero-outline-button" to={`/du-an?loai=${chuanHoaPhanLoaiDuAn(duAn.category)}`}>
+                  Xem tất cả
+                  <i className="bi bi-arrow-right ms-2"></i>
+                </Link>
+              </div>
+              <div className="project-related-grid">
+                {duAnLienQuan.map((item) => (
+                  <Link className="project-related-card" to={`/du-an/${item.slug}`} key={item.id || item.slug}>
+                    <img src={item.imageUrl} alt={item.name} />
+                    <div>
+                      <span>{layNhanPhanLoaiDuAn(item.category)}</span>
+                      <h3>{item.name}</h3>
+                      <p>{item.location}</p>
+                      <strong>{item.priceRange}</strong>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </section>
     </main>

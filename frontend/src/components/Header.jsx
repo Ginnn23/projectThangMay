@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 
 import logoHaHong from "../assets/images/logo-ha-hong.jpg";
@@ -12,6 +13,12 @@ const menuItems = [
 ];
 
 function Header() {
+  const [menuDangMo, setMenuDangMo] = useState(false);
+
+  const dongMenu = () => {
+    setMenuDangMo(false);
+  };
+
   return (
     <header className="site-header">
       <div className="top-bar">
@@ -29,7 +36,7 @@ function Header() {
 
       <nav className="navbar navbar-expand-lg navbar-light bg-white main-navbar">
         <div className="site-container">
-          <NavLink className="navbar-brand" to="/">
+          <NavLink className="navbar-brand" to="/" onClick={dongMenu}>
             <span className="brand-logo-wrap">
               <img src={logoHaHong} alt="Logo Thang Máy Hà Hồng" />
             </span>
@@ -40,29 +47,28 @@ function Header() {
           </NavLink>
 
           <button
-            className="navbar-toggler"
+            className={`navbar-toggler${menuDangMo ? "" : " collapsed"}`}
             type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#mainMenu"
             aria-controls="mainMenu"
-            aria-expanded="false"
+            aria-expanded={menuDangMo}
             aria-label="Mở menu"
+            onClick={() => setMenuDangMo((prev) => !prev)}
           >
             <span className="navbar-toggler-icon"></span>
           </button>
 
-          <div className="collapse navbar-collapse justify-content-lg-center" id="mainMenu">
+          <div className={`collapse navbar-collapse justify-content-lg-center${menuDangMo ? " show" : ""}`} id="mainMenu">
             <ul className="navbar-nav align-items-lg-center mx-lg-auto">
               {menuItems.map((item) => (
                 <li className="nav-item" key={item.label}>
-                  <NavLink className={({ isActive }) => `nav-link${isActive ? " active" : ""}`} end={item.end} to={item.to}>
+                  <NavLink className={({ isActive }) => `nav-link${isActive ? " active" : ""}`} end={item.end} to={item.to} onClick={dongMenu}>
                     {item.label}
                   </NavLink>
                 </li>
               ))}
             </ul>
 
-            <NavLink className="btn navbar-quote-button ms-lg-3" to="/lien-he">
+            <NavLink className="btn navbar-quote-button ms-lg-3" to="/lien-he" onClick={dongMenu}>
               Yêu cầu báo giá
               <i className="bi bi-arrow-up-right ms-2"></i>
             </NavLink>

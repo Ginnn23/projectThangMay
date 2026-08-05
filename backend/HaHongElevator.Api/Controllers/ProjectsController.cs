@@ -67,6 +67,21 @@ public class ProjectsController : ControllerBase
         return Ok(projects);
     }
 
+    [Authorize(Roles = "Admin")]
+    [HttpGet("admin")]
+    public async Task<ActionResult<IEnumerable<ProjectDto>>> GetProjectsForAdmin(CancellationToken cancellationToken)
+    {
+        var projects = await _dbContext.Projects
+            .AsNoTracking()
+            .OrderByDescending(x => x.IsActive)
+            .ThenByDescending(x => x.IsFeatured)
+            .ThenByDescending(x => x.CompletedAt ?? x.CreatedAt)
+            .Select(x => ToDto(x))
+            .ToListAsync(cancellationToken);
+
+        return Ok(projects);
+    }
+
     [HttpGet("{id:int:min(1)}")]
     [EnableRateLimiting("public-read")]
     public async Task<ActionResult<ProjectDto>> GetProject(int id, CancellationToken cancellationToken)
@@ -162,6 +177,37 @@ public class ProjectsController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id:int}/visibility")]
+    public async Task<ActionResult<ProjectDto>> UpdateProjectVisibility(int id, UpdateProjectVisibilityDto request)
+    {
+        var project = await _dbContext.Projects.FindAsync(id);
+        if (project == null)
+        {
+            return NotFound();
+        }
+
+        project.IsActive = request.IsActive;
+        await _dbContext.SaveChangesAsync();
+
+        return Ok(ToDto(project));
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id:int}/permanent")]
+    public async Task<IActionResult> DeleteProjectPermanently(int id)
+    {
+        var project = await _dbContext.Projects.FindAsync(id);
+        if (project == null)
+        {
+            return NotFound();
+        }
+
+        _dbContext.Projects.Remove(project);
+        await _dbContext.SaveChangesAsync();
+        return NoContent();
+    }
+
     private static ProjectDto ToDto(Project project) => new()
     {
         Id = project.Id,
@@ -208,4 +254,9 @@ public class ProjectsController : ControllerBase
             return [];
         }
     }
+}
+
+public class UpdateProjectVisibilityDto
+{
+    public bool IsActive { get; set; }
 }
