@@ -5,7 +5,7 @@ import { apiClient } from "../api/client";
 import heroImage from "../assets/images/hero-elevator.jpg";
 import { soDienThoaiCongTy, soDienThoaiLienKet } from "../data/contactInfo";
 import { boLocDuAn, chuanHoaPhanLoaiDuAn, layNhanPhanLoaiDuAn } from "../data/projectCategories";
-import { chuanHoaDuAn, duAnMau } from "../data/projectData";
+import { anhDuAnMacDinh, chuanHoaDuAn, duAnMau } from "../data/projectData";
 
 const SO_DU_AN_MOI_TRANG = 8;
 
@@ -43,11 +43,19 @@ function BannerDuAn() {
 
 function TheDuAn({ duAn }) {
   const [anhDangDung, setAnhDangDung] = useState(duAn.imageUrl);
+  const fallbackImage = anhDuAnMacDinh[Math.abs(String(duAn.id || duAn.slug).length) % anhDuAnMacDinh.length];
 
   return (
     <article className="project-gallery-card" data-aos="fade-up">
       <Link to={`/du-an/${duAn.slug}`} target="_blank" rel="noopener noreferrer" className="project-gallery-image">
-        <img src={anhDangDung} alt={duAn.name} loading="lazy" width="960" height="720" onError={() => setAnhDangDung(chuanHoaDuAn(duAn).imageUrl)} />
+        <img
+          src={anhDangDung}
+          alt={duAn.name}
+          loading="lazy"
+          width="960"
+          height="720"
+          onError={() => setAnhDangDung((current) => current === fallbackImage ? current : fallbackImage)}
+        />
         <div className="project-gallery-overlay"></div>
         <span className="project-reference-badge">{duAn.isSample ? "Dữ liệu tham khảo" : "Dự án Hà Hồng"}</span>
       </Link>

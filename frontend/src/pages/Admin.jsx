@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { API_BASE_URL, apiClient } from "../api/client";
+import { API_BASE_URL, API_ORIGIN, apiClient } from "../api/client";
 import { boLocDuAn, chuanHoaPhanLoaiDuAn, layNhanPhanLoaiDuAn, phanLoaiDuAn } from "../data/projectCategories";
 import { anhDuAnMacDinh } from "../data/projectData";
 
@@ -109,7 +109,7 @@ function taoUrlAnhAdmin(imageUrl, fallbackImage = "") {
   if (!imageUrl) return "";
   if (/^https?:\/\//i.test(imageUrl) || imageUrl.startsWith("data:")) return imageUrl;
   if (imageUrl.startsWith("/src/") || imageUrl.startsWith("/assets/")) return imageUrl;
-  return `${API_BASE_URL.replace(/\/api$/, "")}${imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`}`;
+  return `${API_ORIGIN}${imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`}`;
 }
 
 function taoFormCaiDatHero(data = {}) {
@@ -1356,6 +1356,11 @@ function Admin() {
 
   const luuDuAn = async (event) => {
     event.preventDefault();
+    if (!projectForm.imageUrl) {
+      hienThongBao("Vui lòng chọn ảnh đại diện dự án trước khi lưu.", "error");
+      return;
+    }
+
     const payload = {
       ...projectForm,
       category: chuanHoaPhanLoaiDuAn(projectForm.category),

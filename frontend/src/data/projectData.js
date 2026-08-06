@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "../api/client";
+import { API_ORIGIN } from "../api/client";
 import anhCabinInox01 from "../assets/images/du-an/cabin-thang-may-inox-01.webp";
 import anhGiaDinh01 from "../assets/images/du-an/thang-may-gia-dinh-01.webp";
 import anhGiaDinh02 from "../assets/images/du-an/thang-may-gia-dinh-02.webp";
@@ -88,7 +88,7 @@ export function taoUrlAnhApi(imageUrl) {
   if (/source\.unsplash\.com/i.test(imageUrl)) return "";
   if (/^https?:\/\//i.test(imageUrl) || imageUrl.startsWith("data:") || imageUrl.startsWith("/src/") || imageUrl.startsWith("/assets/")) return imageUrl;
   if (!imageUrl.startsWith("/") || !/\.(jpg|jpeg|png|webp)$/i.test(imageUrl)) return "";
-  return `${API_BASE_URL.replace(/\/api$/, "")}${imageUrl}`;
+  return `${API_ORIGIN}${imageUrl}`;
 }
 
 export function chuanHoaDuAn(item, index = 0) {
