@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\backend",
+    "\\backend\\HaHongElevator.Api",
+    "\\backend\\HaHongElevator.Api\\Controllers",
+    "\\backend\\HaHongElevator.Api\\Data",
+    "\\backend\\HaHongElevator.Api\\Migrations",
+    "\\frontend",
+    "\\frontend\\src",
+    "\\frontend\\src\\api"
+  ],
+  "SelectedNode": "\\backend\\HaHongElevator.Api\\Program.cs",
+  "PreviewInSolutionExplorer": false
+}
